@@ -1,6 +1,6 @@
 """PySide6 UI for KeyPro's visual workflow studio."""
 from __future__ import annotations
-import json, queue, sys
+import copy, json, queue, sys
 from pathlib import Path
 from typing import Any
 
@@ -10,7 +10,7 @@ from PySide6.QtWidgets import (
     QApplication, QCheckBox, QComboBox, QFileDialog, QFrame, QHBoxLayout, QLabel,
     QLineEdit, QListWidget, QListWidgetItem, QMainWindow, QMessageBox, QPlainTextEdit,
     QPushButton, QScrollArea, QSizePolicy, QSpinBox, QDoubleSpinBox, QVBoxLayout,
-    QWidget, QProgressBar,
+    QWidget, QProgressBar, QInputDialog, QMenu,
 )
 
 from workflow_engine import DEFAULT_WORKFLOW, WorkflowRunner
@@ -42,6 +42,7 @@ QPushButton {{ background: {C['surface2']}; border: 0; border-radius: 8px; paddi
 QPushButton:hover {{ background: {C['surface3']}; }}
 QPushButton#run {{ background: {C['violet']}; color: white; font-weight: 700; padding: 10px 18px; }}
 QPushButton#run:hover {{ background: {C['violet2']}; }}
+QPushButton#workflowMenu {{ background: {C['surface2']}; color: {C['text']}; padding: 8px 12px; }}
 QPushButton#action {{ text-align: left; background: transparent; padding: 8px 10px; border-radius: 8px; }}
 QPushButton#action:hover {{ background: {C['surface2']}; }}
 QLabel#actionIcon {{ font-size: 20px; color: {C['cyan']}; min-width: 26px; }}
@@ -104,10 +105,16 @@ class StepRow(QFrame):
 class KeyProWindow(QMainWindow):
     def __init__(self):
         super().__init__(); self.setWindowTitle("KeyPro · workflow studio"); self.resize(1440, 900); self.setMinimumSize(1120, 700); self.setStyleSheet(STYLE)
-        self.workflow = {"name":"Submit form repeatedly", "steps": [dict(x) for x in DEFAULT_WORKFLOW]}; self.selected = 0; self.runner = None; self.events = queue.Queue(); self.build_ui(); self.render_steps(); self.render_inspector(); self.timer = QTimer(self); self.timer.timeout.connect(self.drain_events); self.timer.start(100)
+        initial = {"name":"Submit form repeatedly", "steps": [dict(x) for x in DEFAULT_WORKFLOW]}
+        self.workflows = {initial["name"]: initial}; self.active_workflow = initial["name"]; self.workflow = initial
+        self.selected = 0; self.runner = None; self.events = queue.Queue(); self.build_ui(); self.render_steps(); self.render_inspector(); self.timer = QTimer(self); self.timer.timeout.connect(self.drain_events); self.timer.start(100)
     def build_ui(self):
         root = QWidget(); self.setCentralWidget(root); outer = QVBoxLayout(root); outer.setContentsMargins(20, 16, 20, 0); outer.setSpacing(14)
-        top = QHBoxLayout(); mark=QLabel("✦"); mark.setObjectName("brandMark"); top.addWidget(mark); brand=QLabel("KeyPro"); brand.setObjectName("brand"); top.addWidget(brand); flow=QLabel("/ flow studio"); flow.setProperty("muted", True); top.addWidget(flow); top.addStretch();
+        top = QHBoxLayout(); top.setSpacing(10); mark=QLabel("✦"); mark.setObjectName("brandMark"); top.addWidget(mark); brand=QLabel("KeyPro"); brand.setObjectName("brand"); top.addWidget(brand); flow=QLabel("/ flow studio"); flow.setProperty("muted", True); top.addWidget(flow)
+        self.workflow_menu = QMenu(self)
+        self.workflow_menu.aboutToShow.connect(self.refresh_workflow_menu)
+        self.workflow_menu.setStyleSheet(f"QMenu {{ background:{C['surface']}; border:1px solid {C['line']}; padding:6px; }} QMenu::item {{ padding:8px 18px; }} QMenu::item:selected {{ background:{C['surface3']}; }}")
+        self.workflow_button = QPushButton("Workflows ▾"); self.workflow_button.setObjectName("workflowMenu"); self.workflow_button.setMenu(self.workflow_menu); top.addWidget(self.workflow_button); top.addStretch();
         self.save_btn=self.button("Save", self.save); self.open_btn=self.button("Open", self.open); self.preview_btn=self.button("Preview", lambda: self.run(True)); self.run_btn=self.button("Run workflow", lambda: self.run(False), "run")
         for b in (self.save_btn,self.open_btn,self.preview_btn,self.run_btn): top.addWidget(b)
         outer.addLayout(top)
@@ -116,6 +123,47 @@ class KeyProWindow(QMainWindow):
         self.statusBar().showMessage("Ready to compose"); self.runtime_label=QLabel("Idle"); self.runtime_label.setStyleSheet(f"color:{C['cyan']}; font-weight:700;"); self.statusBar().addPermanentWidget(self.runtime_label); self.progress=QProgressBar(); self.progress.setRange(0,100); self.progress.setFixedWidth(130); self.statusBar().addPermanentWidget(self.progress)
     def button(self,text,slot,obj=None):
         b=QPushButton(text); b.clicked.connect(slot); b.setObjectName(obj or ""); return b
+    def refresh_workflow_menu(self):
+        self.workflow_menu.clear()
+        self.workflow_menu.addAction("New workflow", self.new_workflow)
+        self.workflow_menu.addAction("Duplicate active", self.duplicate_workflow)
+        self.workflow_menu.addAction("Rename active", self.rename_workflow)
+        self.workflow_menu.addAction("Delete active", self.delete_workflow)
+        self.workflow_menu.addSeparator()
+        for name in self.workflows:
+            prefix = "✓  " if name == self.active_workflow else "   "
+            self.workflow_menu.addAction(prefix + name, lambda checked=False, n=name: self.switch_workflow(n))
+    def switch_workflow(self, name):
+        if name not in self.workflows: return
+        self.active_workflow = name; self.workflow = self.workflows[name]; self.selected = 0
+        self.file_title.setText(name); self.render_steps(); self.render_inspector(); self.statusBar().showMessage(f"Switched to {name}")
+    def new_workflow(self):
+        name, ok = QInputDialog.getText(self, "New workflow", "Workflow name:", text="Untitled workflow")
+        name = name.strip()
+        if not ok or not name: return
+        base = name; suffix = 2
+        while name in self.workflows:
+            name = f"{base} {suffix}"; suffix += 1
+        data = {"name": name, "steps": [{"type":"delay", "label":"Wait a little", "seconds":2}]}
+        self.workflows[name] = data; self.switch_workflow(name)
+    def duplicate_workflow(self):
+        base = f"Copy of {self.active_workflow}"; name = base; suffix = 2
+        while name in self.workflows:
+            name = f"{base} {suffix}"; suffix += 1
+        data = copy.deepcopy(self.workflow); data["name"] = name; self.workflows[name] = data; self.switch_workflow(name)
+    def rename_workflow(self):
+        name, ok = QInputDialog.getText(self, "Rename workflow", "Workflow name:", text=self.active_workflow)
+        name = name.strip()
+        if not ok or not name or name == self.active_workflow: return
+        if name in self.workflows:
+            QMessageBox.warning(self, "Workflow exists", "Choose a different workflow name."); return
+        data = self.workflows.pop(self.active_workflow); data["name"] = name; self.workflows[name] = data; self.switch_workflow(name)
+    def delete_workflow(self):
+        if len(self.workflows) <= 1:
+            QMessageBox.information(self, "Keep one workflow", "KeyPro needs at least one workflow."); return
+        answer = QMessageBox.question(self, "Delete workflow", f"Delete '{self.active_workflow}'?")
+        if answer != QMessageBox.StandardButton.Yes: return
+        old = self.active_workflow; self.workflows.pop(old); self.switch_workflow(next(iter(self.workflows)))
     def sidebar(self):
         panel=QFrame(); panel.setObjectName("panel"); panel.setFixedWidth(220); lay=QVBoxLayout(panel); lay.setContentsMargins(16,20,16,18); lay.setSpacing(4)
         lab=QLabel("ACTION LIBRARY"); lab.setObjectName("eyebrow"); lay.addWidget(lab); self.action_container=QVBoxLayout(); self.action_container.setSpacing(2); lay.addLayout(self.action_container)
@@ -178,11 +226,13 @@ class KeyProWindow(QMainWindow):
         if len(a)>1: a.pop(i); self.selected=max(0,min(i,len(a)-1))
     def save(self):
         path,_=QFileDialog.getSaveFileName(self,"Save workflow","", "KeyPro workflow (*.kpflow);;JSON (*.json)")
-        if path: Path(path).write_text(json.dumps(self.workflow,indent=2,ensure_ascii=False),encoding="utf-8"); self.file_title.setText(Path(path).stem); self.statusBar().showMessage(f"Saved {Path(path).name}")
+        if path:
+            Path(path).write_text(json.dumps(self.workflow,indent=2,ensure_ascii=False),encoding="utf-8")
+            self.statusBar().showMessage(f"Saved {Path(path).name}")
     def open(self):
         path,_=QFileDialog.getOpenFileName(self,"Open workflow","", "KeyPro workflow (*.kpflow);;JSON (*.json)")
         if path:
-            self.workflow=json.loads(Path(path).read_text(encoding="utf-8")); self.selected=0; self.file_title.setText(self.workflow.get("name",Path(path).stem)); self.render_steps(); self.render_inspector(); self.statusBar().showMessage(f"Opened {Path(path).name}")
+            data=json.loads(Path(path).read_text(encoding="utf-8")); name=data.get("name",Path(path).stem); self.workflows[name]=data; self.switch_workflow(name); self.statusBar().showMessage(f"Opened {Path(path).name}")
     def run(self,preview=False):
         if self.runner and self.runner.is_running(): self.runner.stop(); return
         self.runner=WorkflowRunner(self.workflow,preview=preview,event_queue=self.events); self.runtime_label.setText("Preview" if preview else "Live"); self.statusBar().showMessage("Previewing workflow…" if preview else "Running workflow…"); self.progress.setValue(0); self.runner.start()
