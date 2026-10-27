@@ -15,9 +15,9 @@ jobs:
       matrix:
         include:
           - os: macos-13
-            artifact: KeyPressor-macos
+            artifact: KeyPro-macos
           - os: windows-latest
-            artifact: KeyPressor-windows
+            artifact: KeyPro-windows
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
@@ -36,11 +36,11 @@ jobs:
           fi
       - name: Zip artifact (macOS)
         if: runner.os == 'macOS'
-        run: ditto -c -k --sequesterRsrc --keepParent dist/KeyPressor.app dist/KeyPressor-macos.zip
+        run: ditto -c -k --sequesterRsrc --keepParent dist/KeyPro.app dist/KeyPro-macos.zip
       - name: Zip artifact (Windows)
         if: runner.os == 'Windows'
         shell: pwsh
-        run: Compress-Archive -Path dist/KeyPressor -DestinationPath dist/KeyPressor-windows.zip
+        run: Compress-Archive -Path dist/KeyPro -DestinationPath dist/KeyPro-windows.zip
       - uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.artifact }}

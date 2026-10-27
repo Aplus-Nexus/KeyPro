@@ -1,4 +1,4 @@
-"""Portable workflow model and optional input runtime for KeyPressor."""
+"""Portable workflow model and optional input runtime for KeyPro."""
 from __future__ import annotations
 
 import queue

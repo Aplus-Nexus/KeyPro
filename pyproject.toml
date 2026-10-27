@@ -3,7 +3,7 @@ requires = ["setuptools>=68"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "keypressor"
+name = "keypro"
 version = "0.1.0"
 description = "Cross-platform visual workflow automation studio"
 readme = "README.md"
@@ -13,4 +13,4 @@ authors = [{name = "Aplus-Nexus"}]
 dependencies = []
 
 [project.scripts]
-keypressor = "app:main"
+keypro = "app:main"

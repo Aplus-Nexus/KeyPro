@@ -1,12 +1,12 @@
-# KeyPressor
+# KeyPro
 
 > Visual workflows for the keyboard, cursor, and the tiny repetitive things.
 
-KeyPressor is a small cross-platform desktop studio for composing repeatable workflows on macOS and Windows. Build a flow from readable steps, preview it safely, then run it with a global stop shortcut. The project is designed for the **Aplus-Nexus** universe: dark ink surfaces, electric violet structure, and a cyan signal for motion.
+KeyPro is a small cross-platform desktop studio for composing repeatable workflows on macOS and Windows. Build a flow from readable steps, preview it safely, then run it with a global stop shortcut. The project is designed for the **Aplus-Nexus** universe: dark ink surfaces, electric violet structure, and a cyan signal for motion.
 
-KeyPressor 是一个面向 macOS 与 Windows 的轻量工作流编排器。你可以把循环、延迟、输入文字、移动鼠标、OCR 尝试点击、鼠标点击、组合键和 Python 脚本拼成可保存、可预览、可重复运行的流程。
+KeyPro 是一个面向 macOS 与 Windows 的轻量工作流编排器。你可以把循环、延迟、输入文字、移动鼠标、OCR 尝试点击、鼠标点击、组合键和 Python 脚本拼成可保存、可预览、可重复运行的流程。
 
-![KeyPressor workflow studio](assets/keypressor-logo.png)
+![KeyPro workflow studio](assets/keypro-logo.png)
 
 ## What it can do
 
@@ -27,7 +27,7 @@ KeyPressor 是一个面向 macOS 与 Windows 的轻量工作流编排器。你�
 Python 3.9+ and Tk are enough to open the editor:
 
 ```bash
-cd KeyPressor
+cd KeyPro
 python3 app.py
 ```
 
@@ -37,14 +37,14 @@ Optional integrations enable real input control and OCR. Install them with:
 python3 -m pip install -r requirements.txt
 ```
 
-Without optional integrations, KeyPressor remains useful as a workflow editor and preview runner. The runner reports what each step would do rather than silently failing.
+Without optional integrations, KeyPro remains useful as a workflow editor and preview runner. The runner reports what each step would do rather than silently failing.
 
 ### From a release
 
-Download the latest archive from [Releases](https://github.com/Aplus-Nexus/KeyPressor/releases):
+Download the latest archive from [Releases](https://github.com/Aplus-Nexus/KeyPro/releases):
 
-- **macOS:** open `KeyPressor.app` from the extracted folder. If macOS asks for permission to control your computer, grant it in **System Settings → Privacy & Security → Accessibility**.
-- **Windows:** extract the archive and open `KeyPressor.exe`. If Windows Defender shows a first-run prompt, choose **More info → Run anyway** for an unsigned community build.
+- **macOS:** open `KeyPro.app` from the extracted folder. If macOS asks for permission to control your computer, grant it in **System Settings → Privacy & Security → Accessibility**.
+- **Windows:** extract the archive and open `KeyPro.exe`. If Windows Defender shows a first-run prompt, choose **More info → Run anyway** for an unsigned community build.
 
 ## Compose a workflow
 
@@ -78,7 +78,7 @@ The workflow file is ordinary JSON with a `.kpflow` extension, so it is easy to 
 
 ## Safety and permissions
 
-KeyPressor has a **Preview** action and a visible stop shortcut. Preview never calls the input libraries. Live input is opt-in through the run button, and the app only uses optional integrations when they are installed and permitted by the operating system.
+KeyPro has a **Preview** action and a visible stop shortcut. Preview never calls the input libraries. Live input is opt-in through the run button, and the app only uses optional integrations when they are installed and permitted by the operating system.
 
 OCR is intentionally a best-effort path: when a target cannot be recognized, coordinate values remain the reliable fallback. Tesseract must be installed separately if you want OCR on a packaged build.
 
@@ -100,7 +100,7 @@ The included GitHub Actions workflow builds macOS and Windows artifacts on a `v*
 app.py              Tkinter editor and inspector UI
 workflow_engine.py  workflow model, runner, stop listener, optional input adapters
 build.py            PyInstaller packaging helper
-assets/             KeyPressor mark and repository visuals
+assets/             KeyPro mark and repository visuals
 .github/workflows/  multi-platform release pipeline
 ```
 

@@ -1,4 +1,4 @@
-"""KeyPressor — a visual desktop workflow studio."""
+"""KeyPro — a visual desktop workflow studio."""
 from __future__ import annotations
 
 import json
@@ -18,9 +18,9 @@ ROOT = Path(__file__).resolve().parent
 COLORS = {"bg":"#0B1020","surface":"#11182B","surface2":"#151F36","surface3":"#1B2742","line":"#263453","text":"#EDF2FF","muted":"#8291B5","violet":"#8B5CF6","violet2":"#A78BFA","cyan":"#2DD4BF","amber":"#F6C453","red":"#F87171"}
 ACTION_META = {"loop":("↻","Loop","Repeat until stopped"),"delay":("◷","Delay","Pause for a precise duration"),"type":("⌨","Type text","Insert text at the active cursor"),"move":("⌖","Move cursor","Move to a screen point or OCR target"),"click":("◉","Click","Click a mouse button"),"hotkey":("⌘","Hotkey","Press a key combination"),"script":("{}","Run script","Run a Python snippet")}
 
-class KeyPressorApp(tk.Tk):
+class KeyProApp(tk.Tk):
     def __init__(self):
-        super().__init__(); self.title("KeyPressor · workflow studio"); self.geometry("1440x900"); self.minsize(1100,700); self.configure(bg=COLORS["bg"]); self.protocol("WM_DELETE_WINDOW",self.on_close)
+        super().__init__(); self.title("KeyPro · workflow studio"); self.geometry("1440x900"); self.minsize(1100,700); self.configure(bg=COLORS["bg"]); self.protocol("WM_DELETE_WINDOW",self.on_close)
         self.workflow=self._new_workflow(); self.selected_index=0; self.runner=None; self.events=queue.Queue(); self.file_var=tk.StringVar(value="Untitled workflow"); self.status_var=tk.StringVar(value="Ready to compose"); self.runtime_var=tk.StringVar(value="Idle"); self.steps_count=tk.StringVar()
         self._styles(); self._layout(); self.render_steps(); self.render_inspector(); self.after(120,self._drain)
     def _new_workflow(self):
@@ -40,7 +40,7 @@ class KeyPressorApp(tk.Tk):
     def _button(self,p,text,cmd,accent=False): return ttk.Button(p,text=text,command=cmd,style="Accent.TButton" if accent else "KP.TButton",cursor="hand2")
     def _layout(self):
         top=tk.Frame(self,bg=COLORS["bg"],height=72); top.pack(fill="x"); top.pack_propagate(False)
-        brand=tk.Frame(top,bg=COLORS["bg"]); brand.pack(side="left",padx=28); tk.Label(brand,text="✦",fg=COLORS["cyan"],bg=COLORS["bg"],font=("Helvetica",22,"bold")).pack(side="left",padx=(0,10)); tk.Label(brand,text="KeyPressor",fg=COLORS["text"],bg=COLORS["bg"],font=("Helvetica",19,"bold")).pack(side="left"); tk.Label(brand,text="  /  flow studio",fg=COLORS["muted"],bg=COLORS["bg"],font=("Helvetica",10)).pack(side="left",pady=(7,0))
+        brand=tk.Frame(top,bg=COLORS["bg"]); brand.pack(side="left",padx=28); tk.Label(brand,text="✦",fg=COLORS["cyan"],bg=COLORS["bg"],font=("Helvetica",22,"bold")).pack(side="left",padx=(0,10)); tk.Label(brand,text="KeyPro",fg=COLORS["text"],bg=COLORS["bg"],font=("Helvetica",19,"bold")).pack(side="left"); tk.Label(brand,text="  /  flow studio",fg=COLORS["muted"],bg=COLORS["bg"],font=("Helvetica",10)).pack(side="left",pady=(7,0))
         tools=tk.Frame(top,bg=COLORS["bg"]); tools.pack(side="right",padx=24); self._button(tools,"Save",self.save).pack(side="left",padx=4); self._button(tools,"Open",self.open).pack(side="left",padx=4); self._button(tools,"Preview",lambda:self.run(True)).pack(side="left",padx=4); self._button(tools,"Run workflow",lambda:self.run(False),True).pack(side="left",padx=(12,0))
         body=tk.Frame(self,bg=COLORS["bg"]); body.pack(fill="both",expand=True,padx=20,pady=(0,20)); body.columnconfigure(1,weight=1); body.rowconfigure(0,weight=1); self._sidebar(body); self._flow(body); self._inspector(body); self._status()
     def _sidebar(self,parent):
@@ -115,10 +115,10 @@ class KeyPressorApp(tk.Tk):
         a.pop(i); self.selected_index=max(0,min(i,len(a)-1)); self.render_steps(); self.render_inspector()
     def serial(self): return self.workflow if isinstance(self.workflow,dict) else self.workflow.to_dict()
     def save(self):
-        p=filedialog.asksaveasfilename(defaultextension=".kpflow",filetypes=[("KeyPressor workflow","*.kpflow"),("JSON","*.json")]);
+        p=filedialog.asksaveasfilename(defaultextension=".kpflow",filetypes=[("KeyPro workflow","*.kpflow"),("JSON","*.json")]);
         if p: Path(p).write_text(json.dumps(self.serial(),indent=2,ensure_ascii=False),encoding="utf-8"); self.file_var.set(Path(p).stem); self.status_var.set(f"Saved {Path(p).name}")
     def open(self):
-        p=filedialog.askopenfilename(filetypes=[("KeyPressor workflow","*.kpflow"),("JSON","*.json")]);
+        p=filedialog.askopenfilename(filetypes=[("KeyPro workflow","*.kpflow"),("JSON","*.json")]);
         if p:
             try:self.workflow=json.loads(Path(p).read_text(encoding="utf-8")); self.selected_index=0; self.file_var.set(Path(p).stem); self.render_steps(); self.render_inspector(); self.status_var.set(f"Opened {Path(p).name}")
             except Exception as e:messagebox.showerror("Could not open",str(e))
@@ -145,6 +145,6 @@ class KeyPressorApp(tk.Tk):
         self.destroy()
 
 def main():
-    KeyPressorApp().mainloop()
+    KeyProApp().mainloop()
 
 if __name__=="__main__":main()
