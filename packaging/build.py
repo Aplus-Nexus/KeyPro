@@ -12,7 +12,9 @@ BUILD = ROOT / "build"
 
 
 def main() -> None:
-    if shutil.which("pyinstaller") is None:
+    try:
+        subprocess.check_call([sys.executable, "-m", "PyInstaller", "--version"], stdout=subprocess.DEVNULL)
+    except (OSError, subprocess.CalledProcessError):
         raise SystemExit("PyInstaller is not installed. Run: pip install -r requirements-dev.txt")
     spec = ROOT / "packaging" / "keypressor.spec"
     if DIST.exists():
