@@ -36,7 +36,7 @@ jobs:
           fi
       - name: Zip artifact (macOS)
         if: runner.os == 'macOS'
-        run: ditto -c -k --sequesterRsrc --keepParent dist/KeyPressor dist/KeyPressor-macos.zip
+        run: ditto -c -k --sequesterRsrc --keepParent dist/KeyPressor.app dist/KeyPressor-macos.zip
       - name: Zip artifact (Windows)
         if: runner.os == 'Windows'
         shell: pwsh
