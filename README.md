@@ -4,6 +4,8 @@
 
 KeyPressor is a small cross-platform desktop studio for composing repeatable workflows on macOS and Windows. Build a flow from readable steps, preview it safely, then run it with a global stop shortcut. The project is designed for the **Aplus-Nexus** universe: dark ink surfaces, electric violet structure, and a cyan signal for motion.
 
+KeyPressor 是一个面向 macOS 与 Windows 的轻量工作流编排器。你可以把循环、延迟、输入文字、移动鼠标、OCR 尝试点击、鼠标点击、组合键和 Python 脚本拼成可保存、可预览、可重复运行的流程。
+
 ![KeyPressor workflow studio](assets/keypressor-logo.png)
 
 ## What it can do
