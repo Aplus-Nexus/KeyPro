@@ -26,10 +26,11 @@ KeyPro 是一个面向 macOS 与 Windows 的轻量工作流编排器。你可以
 
 ### From source
 
-Python 3.9+ and Tk are enough to open the editor:
+Python 3.9+ and PySide6 are enough to open the editor:
 
 ```bash
 cd KeyPro
+python3 -m pip install -r requirements.txt
 python3 app.py
 ```
 
@@ -101,7 +102,9 @@ The included GitHub Actions workflow builds macOS and Windows artifacts on a `v*
 ## Project shape
 
 ```text
-app.py              Tkinter editor and inspector UI
+app.py              PySide6 desktop entry point
+app_qt.py           Qt editor and inspector UI
+app_tk.py           dependency-light legacy Tk fallback
 workflow_engine.py  workflow model, runner, stop listener, optional input adapters
 build.py            PyInstaller packaging helper
 assets/             KeyPro mark and repository visuals
