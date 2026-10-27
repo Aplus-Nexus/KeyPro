@@ -13,4 +13,4 @@ authors = [{name = "Aplus-Nexus"}]
 dependencies = []
 
 [project.scripts]
-keypressor = "app:KeyPressorApp"
+keypressor = "app:main"

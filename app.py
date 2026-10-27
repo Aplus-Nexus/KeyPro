@@ -77,6 +77,8 @@ class KeyPressorApp(tk.Tk):
         d=self._data(steps[self.selected_index]); k=d.get("type","delay"); self.label("Step name"); name=tk.StringVar(value=d.get("label",ACTION_META.get(k,("",k,""))[1])); e=ttk.Entry(self.inspector,textvariable=name,style="KP.TEntry"); e.pack(fill="x",pady=(0,16)); e.bind("<FocusOut>",lambda e:self.update("label",name.get())); self.label("Action"); tk.Label(self.inspector,text=ACTION_META.get(k,("",k,""))[1],fg=COLORS["cyan"],bg=COLORS["surface"],font=("Helvetica",12,"bold")).pack(anchor="w",pady=(0,20))
         fields={"loop":[("Stop shortcut","stop_hotkey","Ctrl + Alt + 5"),("Iterations (optional)","max_iterations","")],"delay":[("Seconds","seconds","2")],"type":[("Text to type","text","AAAA")],"move":[("X position","x","640"),("Y position","y","420"),("OCR target (optional)","ocr_text","")],"click":[("Button","button","left"),("Clicks","clicks","1"),("Interval","interval","0.08")],"hotkey":[("Keys","keys_text","Ctrl + Enter")],"script":[("Python","script","# available: pyautogui, time\n")]}.get(k,[])
         for label,key,default in fields:self.field(label,d,key,default,multiline=k=="script")
+        if k=="move":
+            self._button(self.inspector,"Use current cursor position",self.capture_pointer).pack(fill="x",pady=(0,12))
         if k in ("type","move"): self.check("Try OCR / clipboard when available" if k=="move" else "Use clipboard paste",d,"ocr" if k=="move" else "paste",True)
         tk.Frame(self.inspector,bg=COLORS["line"],height=1).pack(fill="x",pady=(20,16)); self.label("RUN SAFETY"); tk.Label(self.inspector,text="Ctrl + Alt + 5 always stops the active run. Preview mode never touches your cursor.",fg=COLORS["muted"],bg=COLORS["surface"],font=("Helvetica",9),wraplength=260,justify="left").pack(anchor="w",pady=(8,0))
     def label(self,text):tk.Label(self.inspector,text=text,fg=COLORS["muted"],bg=COLORS["surface"],font=("Helvetica",9,"bold")).pack(anchor="w",pady=(0,6))
@@ -98,6 +100,12 @@ class KeyPressorApp(tk.Tk):
             except: pass
         if key=="keys_text":d["keys"]=[x.strip() for x in str(val).replace("+",",").split(",") if x.strip()]
         d[key]=val; self.render_steps()
+    def capture_pointer(self):
+        try:
+            import pyautogui
+            x,y=pyautogui.position(); d=self._data(self._steps()[self.selected_index]); d.update(x=int(x),y=int(y)); self.render_steps(); self.render_inspector(); self.status_var.set(f"Captured cursor at {x}, {y}")
+        except Exception:
+            self.status_var.set("Install pyautogui to capture the current cursor position")
     def move(self,i,delta):
         a=self._steps(); n=i+delta
         if 0<=n<len(a): a[i],a[n]=a[n],a[i]; self.selected_index=n; self.render_steps(); self.render_inspector()
@@ -136,4 +144,7 @@ class KeyPressorApp(tk.Tk):
         if self.runner:self.runner.stop()
         self.destroy()
 
-if __name__=="__main__":KeyPressorApp().mainloop()
+def main():
+    KeyPressorApp().mainloop()
+
+if __name__=="__main__":main()

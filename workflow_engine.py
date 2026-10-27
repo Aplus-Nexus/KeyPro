@@ -62,9 +62,10 @@ class WorkflowRunner(threading.Thread):
         self._running=True
         try:
             steps=self.workflow.steps; loop_index=next((i for i,s in enumerate(steps) if s.type=="loop"),None)
+            self._start_listener("Ctrl + Alt + 5" if loop_index is None else self.workflow.steps[loop_index].params.get("stop_hotkey","Ctrl + Alt + 5"))
             if loop_index is None: self._run_steps(steps)
             else:
-                before=steps[loop_index+1:]; loop=steps[loop_index]; self._start_listener(loop.params.get("stop_hotkey","Ctrl + Alt + 5")); iterations=0; max_iter=str(loop.params.get("max_iterations","")).strip()
+                before=steps[loop_index+1:]; loop=steps[loop_index]; iterations=0; max_iter=str(loop.params.get("max_iterations","")).strip()
                 while not self.stop_event.is_set():
                     iterations+=1; self._run_steps(before,iterations)
                     if max_iter and iterations>=int(max_iter): break
@@ -131,7 +132,11 @@ class WorkflowRunner(threading.Thread):
             except Exception:name=str(key).lower()
             pressed.add(name)
             if any(x in pressed for x in wanted if x in {"ctrl","alt","shift","command"}) and any(x in pressed for x in wanted if x not in {"ctrl","alt","shift","command"}): self.stop_event.set()
-        try:self._listener=keyboard.Listener(on_press=on_press); self._listener.daemon=True; self._listener.start()
+        def on_release(key):
+            try:name=key.char.lower() if getattr(key,"char",None) else str(key).split(".")[-1].lower()
+            except Exception:name=str(key).lower()
+            pressed.discard(name)
+        try:self._listener=keyboard.Listener(on_press=on_press,on_release=on_release); self._listener.daemon=True; self._listener.start()
         except Exception:self._listener=None
     def _stop_listener(self):
         if self._listener:
