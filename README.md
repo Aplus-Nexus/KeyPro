@@ -53,6 +53,8 @@ Download the latest archive from [Releases](https://github.com/Aplus-Nexus/KeyPr
 
 The center canvas is deliberately simple: click a card in **Action library** to add it, select a step to edit it in the inspector, and use the arrows to reorder it. A common first flow looks like this:
 
+Use **Workflows ▾** in the top-left to create, switch, duplicate, rename, or delete workflows. Each workflow keeps its own ordered steps while the same editor and runner stay in place.
+
 ```text
 Loop until Ctrl + Alt + 5
   Delay       2 seconds
