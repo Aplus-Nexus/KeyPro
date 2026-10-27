@@ -6,7 +6,9 @@ KeyPro is a small cross-platform desktop studio for composing repeatable workflo
 
 KeyPro 是一个面向 macOS 与 Windows 的轻量工作流编排器。你可以把循环、延迟、输入文字、移动鼠标、OCR 尝试点击、鼠标点击、组合键和 Python 脚本拼成可保存、可预览、可重复运行的流程。
 
-![KeyPro workflow studio](assets/keypro-logo.png)
+![KeyPro workflow studio](assets/keypro-workflow-preview.svg)
+
+> This is a rendered view of the actual KeyPro editor layout using the bundled sample workflow. The same six steps are available as a portable file in [`examples/submit-form.kpflow`](examples/submit-form.kpflow).
 
 ## What it can do
 
@@ -60,6 +62,8 @@ Loop until Ctrl + Alt + 5
 ```
 
 The workflow file is ordinary JSON with a `.kpflow` extension, so it is easy to version, review, or generate from another tool. A minimal example:
+
+For a ready-to-open sample, see [`examples/README.md`](examples/README.md) and [`examples/submit-form.kpflow`](examples/submit-form.kpflow).
 
 ```json
 {
