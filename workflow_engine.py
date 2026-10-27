@@ -65,11 +65,12 @@ class WorkflowRunner(threading.Thread):
             self._start_listener("Ctrl + Alt + 5" if loop_index is None else self.workflow.steps[loop_index].params.get("stop_hotkey","Ctrl + Alt + 5"))
             if loop_index is None: self._run_steps(steps)
             else:
-                before=steps[loop_index+1:]; loop=steps[loop_index]; iterations=0; max_iter=str(loop.params.get("max_iterations","")).strip()
+                prefix=steps[:loop_index]; body=steps[loop_index+1:]; loop=steps[loop_index]; iterations=0; max_iter=str(loop.params.get("max_iterations","")).strip()
+                if prefix: self._run_steps(prefix)
                 while not self.stop_event.is_set():
-                    iterations+=1; self._run_steps(before,iterations)
+                    iterations+=1; self._run_steps(body,iterations)
                     if max_iter and iterations>=int(max_iter): break
-                    if not before: break
+                    if not body: break
             if self.stop_event.is_set(): self.emit("stopped")
             else: self.emit("done")
         except Exception as exc: self.emit("error",str(exc))
