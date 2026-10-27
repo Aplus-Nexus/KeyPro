@@ -1,0 +1,44 @@
+{
+  "name": "Submit form repeatedly",
+  "version": 1,
+  "steps": [
+    {
+      "type": "loop",
+      "label": "Loop until stopped",
+      "stop_hotkey": "Ctrl + Alt + 5",
+      "max_iterations": ""
+    },
+    {
+      "type": "delay",
+      "label": "Wait 2 seconds",
+      "seconds": 2
+    },
+    {
+      "type": "type",
+      "label": "Type text",
+      "text": "AAAA",
+      "paste": true
+    },
+    {
+      "type": "move",
+      "label": "Find submit button",
+      "x": 640,
+      "y": 420,
+      "ocr": true,
+      "ocr_text": "Submit"
+    },
+    {
+      "type": "click",
+      "label": "Click mouse",
+      "button": "left",
+      "clicks": 1,
+      "interval": 0.08
+    },
+    {
+      "type": "hotkey",
+      "label": "Press shortcut",
+      "keys": ["Ctrl", "Enter"],
+      "keys_text": "Ctrl + Enter"
+    }
+  ]
+}
